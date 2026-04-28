@@ -67,7 +67,7 @@ Return ONLY valid JSON exactly matching this schema (no extra keys):
 Constraints:
 - ai_estimate_low and ai_estimate_high must be numbers (low < high)
 - recommended_offer and walk_away_price must be numbers, and walk_away_price MUST be higher than recommended_offer
-- explanation: 2-3 short sentences, professional tone, mention price vs market + mileage/condition + any red flags if present. No labels. No bullet points.
+- explanation: 2-3 short sentences, professional tone, mention price vs market + mileage/condition + any red flags if present, and include a clear action/implication (e.g., "I wouldn’t accept without negotiating", "only proceed if price comes down to $X"). Avoid generic phrases like "competitive offer would be advisable". No labels. No bullet points.
 - message_to_seller: 1 short sentence, confident, market-based, no emotional language. No labels. No bullet points. Do not say "fair offer". Use this exact phrasing pattern: "Based on current market value and mileage, I’d be comfortable moving forward at $X."
 - Do not include markdown, code fences, or any text outside JSON
 
@@ -133,11 +133,8 @@ Inputs:
       estimate = roundTo(estimate, 250)
 
       const finalOffer = roundTo(estimate * 0.97, 500)
-
-      let finalWalkAway = roundTo(ai_estimate_high as number, 500)
-      if (!Number.isFinite(finalWalkAway) || finalWalkAway <= 0) finalWalkAway = Math.round(estimate * 1.05)
-
-      if (finalWalkAway <= finalOffer) finalWalkAway = finalOffer + 500
+      const recommendedOffer = Math.round(finalOffer)
+      const recommendedOfferText = recommendedOffer.toLocaleString("en-US")
 
       const askingInsideFairRange =
         Number.isFinite(ai_estimate_low as number) &&
@@ -145,7 +142,23 @@ Inputs:
         price >= (ai_estimate_low as number) &&
         price <= (ai_estimate_high as number)
 
-      if (askingInsideFairRange && (decision === "BUY" || decision === "NEGOTIATE") && finalWalkAway < price) {
+      const askingSlightlyAboveFairRange =
+        Number.isFinite(ai_estimate_high as number) && price > (ai_estimate_high as number) && price <= (ai_estimate_high as number) * 1.05
+
+      const askingWithinOrSlightlyAboveFairRange = askingInsideFairRange || askingSlightlyAboveFairRange
+
+      let finalWalkAway = roundTo(ai_estimate_high as number, 500)
+      if (!Number.isFinite(finalWalkAway) || finalWalkAway <= 0) finalWalkAway = roundTo(estimate * 1.05, 500)
+
+      if (askingWithinOrSlightlyAboveFairRange) {
+        finalWalkAway = Math.max(finalWalkAway, roundTo(price * 1.05, 500))
+      } else {
+        finalWalkAway = roundTo(ai_estimate_high as number, 500)
+      }
+
+      if (finalWalkAway < finalOffer) finalWalkAway = finalOffer
+
+      if (decision === "NEGOTIATE" && finalWalkAway < price) {
         finalWalkAway = roundTo(price, 500)
       }
 
@@ -153,13 +166,10 @@ Inputs:
         .replace(/^\s*[-*]\s*/gm, '')
         .replace(/\s*\n+\s*/g, ' ')
         .trim()
-      const cleanMessageToSeller = messageToSeller
-        .replace(/^"+|"+$/g, '')
-        .replace(/\s*\n+\s*/g, ' ')
-        .trim()
+      const cleanMessageToSeller = `Based on current market value and mileage, I’d be comfortable moving forward at $${recommendedOfferText}.`
 
       ai_summary = `Fair Price Range: $${Math.round(ai_estimate_low as number)} - $${Math.round(ai_estimate_high as number)}
-Recommended Offer: $${Math.round(finalOffer)}
+Recommended Offer: $${recommendedOfferText}
 Walk Away Price: $${Math.round(finalWalkAway)}
 
 Explanation:
@@ -168,7 +178,7 @@ ${cleanExplanation}
 Message to Seller:
 ${cleanMessageToSeller}`
 
-      negotiation_script = messageToSeller
+      negotiation_script = cleanMessageToSeller
     } catch (openAiError) {
       console.error("OpenAI error:", openAiError)
     }

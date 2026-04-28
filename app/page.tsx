@@ -153,105 +153,115 @@ export default function Home() {
             Enter the car details and get a decision, fair price range, walk-away price, and negotiation message.
           </p>
 
+          <div className="mt-6 text-sm font-semibold text-zinc-900">Enter Car Details</div>
+
           <form id="analyze-form" onSubmit={onSubmit} className="mt-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-zinc-800">Price</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                type="number"
-                value={price}
-                placeholder="18000"
-                onChange={(e) => setPrice(e.target.value)}
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">Brand</label>
+                <input
+                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  type="text"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">Model</label>
+                <input
+                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  type="text"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">Price</label>
+                <input
+                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  type="number"
+                  value={price}
+                  placeholder="18000"
+                  onChange={(e) => setPrice(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">Mileage</label>
+                <input
+                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  type="number"
+                  value={mileage}
+                  placeholder="120000"
+                  onChange={(e) => setMileage(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">Year</label>
+                <input
+                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  type="number"
+                  value={year}
+                  placeholder="2018"
+                  onChange={(e) => setYear(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">Condition</label>
+                <select
+                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value as Condition)}
+                >
+                  <option value="excellent">excellent</option>
+                  <option value="good">good</option>
+                  <option value="fair">fair</option>
+                  <option value="poor">poor</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">State</label>
+                <input
+                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  type="text"
+                  value={state}
+                  placeholder="California"
+                  onChange={(e) => setState(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">City</label>
+                <input
+                  className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  type="text"
+                  value={city}
+                  placeholder="Los Angeles"
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-800">Mileage</label>
+              <label className="block text-xs font-medium text-zinc-700">Listing URL</label>
               <input
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                type="number"
-                value={mileage}
-                placeholder="120000"
-                onChange={(e) => setMileage(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-zinc-800">Brand</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                type="text"
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-zinc-800">Model</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                type="text"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-zinc-800">State</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                type="text"
-                value={state}
-                placeholder="California"
-                onChange={(e) => setState(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-zinc-800">City</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                type="text"
-                value={city}
-                placeholder="Los Angeles"
-                onChange={(e) => setCity(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-zinc-800">Year</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                type="number"
-                value={year}
-                placeholder="2018"
-                onChange={(e) => setYear(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-zinc-800">Condition</label>
-              <select
-                className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                value={condition}
-                onChange={(e) => setCondition(e.target.value as Condition)}
-              >
-                <option value="excellent">excellent</option>
-                <option value="good">good</option>
-                <option value="fair">fair</option>
-                <option value="poor">poor</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-zinc-800">Listing URL</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
                 type="text"
                 value={listing_url}
                 onChange={(e) => setListingUrl(e.target.value)}
@@ -259,9 +269,9 @@ export default function Home() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-800">Listing Description</label>
+              <label className="block text-xs font-medium text-zinc-700">Listing Description</label>
               <textarea
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
                 rows={4}
                 value={listing_description}
                 onChange={(e) => setListingDescription(e.target.value)}
@@ -271,7 +281,7 @@ export default function Home() {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex w-full items-center justify-center rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-zinc-900 px-4 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? 'Analyzing…' : 'Analyze Car'}
             </button>
@@ -346,8 +356,8 @@ export default function Home() {
         <footer className="mt-12 w-full pb-4 text-center text-sm text-zinc-500">
           <div>Car decisions made clearer.</div>
           <p className="mx-auto mt-2 max-w-prose text-xs leading-relaxed text-zinc-500">
-            This tool provides an estimated analysis based on the information entered. Always inspect the vehicle,
-            verify title history, and compare with local listings before buying.
+            This tool provides estimated analysis based on user input and market data. It is not financial advice.
+            Always verify vehicle condition, title status, and compare with real listings before making a purchase.
           </p>
         </footer>
       </div>
