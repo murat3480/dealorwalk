@@ -38,6 +38,7 @@ export default function Home() {
   const [city, setCity] = useState<string>('')
   const [year, setYear] = useState<string>('')
   const [condition, setCondition] = useState<Condition>('good')
+  const [vehicle_type, setVehicleType] = useState<string>('auto')
   const [listing_url, setListingUrl] = useState<string>('')
   const [listing_description, setListingDescription] = useState<string>('')
   const [loading, setLoading] = useState(false)
@@ -68,6 +69,7 @@ export default function Home() {
           city,
           year: yearNumber,
           condition,
+          vehicle_type,
           listing_url,
           listing_description,
         }),
@@ -206,7 +208,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-zinc-700">Year</label>
                 <input
@@ -230,6 +232,23 @@ export default function Home() {
                   <option value="good">good</option>
                   <option value="fair">fair</option>
                   <option value="poor">poor</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700">Vehicle Type</label>
+                <select
+                  className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-base outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  value={vehicle_type}
+                  onChange={(e) => setVehicleType(e.target.value)}
+                >
+                  <option value="auto">auto</option>
+                  <option value="sedan">sedan</option>
+                  <option value="suv">suv</option>
+                  <option value="truck">truck</option>
+                  <option value="coupe">coupe</option>
+                  <option value="hatchback">hatchback</option>
+                  <option value="van">van</option>
                 </select>
               </div>
             </div>

@@ -1,3 +1,77 @@
+type Segment = 'TRUCK' | 'SUV' | 'SEDAN' | 'OTHER'
+
+function detectSegment(brand?: string | null, model?: string | null): Segment {
+  const m = (model || '').toLowerCase()
+
+  const TRUCK = ['silverado','f-150','ram','tacoma','tundra','sierra','frontier','ridgeline']
+  const SUV = ['cr-v','rav4','highlander','pilot','explorer','escape','x5','x3','cx-5','kona','sportage','sorento','tucson']
+  const SEDAN = ['corolla','civic','camry','accord','altima','elantra','sonata','malibu','fusion','a4','3 series','5 series']
+
+  if (TRUCK.some(k => m.includes(k))) return 'TRUCK'
+  if (SUV.some(k => m.includes(k))) return 'SUV'
+  if (SEDAN.some(k => m.includes(k))) return 'SEDAN'
+  return 'OTHER'
+}
+
+function getBasePrice(year: number, segment: Segment, brand?: string | null) {
+  const b = (brand || '').toLowerCase()
+
+  const brandMultiplier =
+    ['toyota','honda'].includes(b) ? 1.1 :
+    ['bmw','audi','mercedes'].includes(b) ? 1.2 :
+    ['hyundai','kia','nissan'].includes(b) ? 0.95 :
+    1
+
+  const segmentBase =
+    segment === 'TRUCK' ? 30000 :
+    segment === 'SUV' ? 28000 :
+    segment === 'SEDAN' ? 24000 :
+    25000
+
+  const age = 2026 - year
+
+  const yearlyDrop =
+    segment === 'TRUCK' ? 1200 :
+    segment === 'SUV' ? 1500 :
+    1800
+
+  return (segmentBase - age * yearlyDrop) * brandMultiplier
+}
+
+function applyMileage(base: number, mileage: number, segment: Segment) {
+  const rate =
+    segment === 'TRUCK' ? 0.03 :
+    segment === 'SUV' ? 0.045 :
+    0.06
+
+  return base - (mileage * rate)
+}
+
+function applyCondition(price: number, condition?: string) {
+  const c = (condition || '').toLowerCase()
+
+  const multiplier =
+    c === 'excellent' ? 1.1 :
+    c === 'good' ? 1 :
+    c === 'fair' ? 0.9 :
+    c === 'poor' ? 0.75 :
+    1
+
+  return price * multiplier
+}
+
+function applyFloor(price: number, year: number, segment: Segment) {
+  if (segment === 'TRUCK' && year >= 2010) {
+    return Math.max(price, 10000)
+  }
+
+  if (segment === 'SUV' && year >= 2012) {
+    return Math.max(price, 8000)
+  }
+
+  return Math.max(price, 2000)
+}
+
 export function estimateMarketPrice(
   year: number,
   mileage: number,
@@ -5,56 +79,20 @@ export function estimateMarketPrice(
   brand?: string | null,
   model?: string | null,
 ) {
-  console.log('brand:', brand, 'model:', model)
+  const segment = detectSegment(brand, model)
 
-  const b = brand?.trim().toLowerCase()
-  const m = model?.trim().toLowerCase()
+  let price = getBasePrice(year, segment, brand)
+  price = applyMileage(price, mileage, segment)
+  price = applyCondition(price, condition)
+  price = applyFloor(price, year, segment)
 
-  const age = 2026 - year
+  return Math.round(price)
+}
 
-  let basePrice = 20000
-
-  if (age <= 3) basePrice = 22000
-  else if (age <= 5) basePrice = 18000
-  else if (age <= 8) basePrice = 13000
-  else if (age <= 12) basePrice = 8500
-  else basePrice = 6500
-
-  let overridePrice: number | null = null
-
-  if (b && m) {
-    if (b.includes('volkswagen') && m.includes('rabbit')) {
-      console.log('Rabbit detected')
-      overridePrice = 7500
-    } else if (b.includes('toyota') && m.includes('corolla')) {
-      overridePrice = 6500
-    } else if (b.includes('honda') && m.includes('civic')) {
-      overridePrice = 6500
-    } else if (b.includes('ford') && m.includes('focus')) {
-      overridePrice = 5000
-    } else if (b.includes('hyundai') && m.includes('elantra')) {
-      overridePrice = 5500
-    } else if (b.includes('nissan') && m.includes('altima')) {
-      overridePrice = 5500
-    }
-  }
-
-  if (overridePrice !== null && overridePrice > basePrice) basePrice = overridePrice
-
-  const agePenalty = age * 120
-  const mileagePenalty = mileage * 0.015
-  const estimate = basePrice - agePenalty - mileagePenalty
-
-  const multiplier =
-    condition?.toLowerCase() === 'excellent'
-      ? 1.08
-      : condition?.toLowerCase() === 'fair'
-        ? 0.9
-        : condition?.toLowerCase() === 'poor'
-          ? 0.78
-          : 1
-
-  return Math.max(2000, estimate * multiplier)
+export function getPriceRange(estimate: number) {
+  const low = Math.round(estimate * 0.9)
+  const high = Math.round(estimate * 1.1)
+  return { low, high }
 }
 
 export function calculateScore(year: number, mileage: number) {
@@ -64,7 +102,7 @@ export function calculateScore(year: number, mileage: number) {
 }
 
 export function getDecision(price: number, estimate: number) {
-  if (price <= estimate * 0.95) return 'BUY'
-  if (price <= estimate * 1.15) return 'NEGOTIATE'
+  if (price < estimate * 0.9) return 'BUY'
+  if (price <= estimate * 1.1) return 'NEGOTIATE'
   return 'WALK_AWAY'
 }

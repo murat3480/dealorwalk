@@ -22,6 +22,7 @@ export async function POST(req: Request) {
     const state = body.state ?? null
     const city = body.city ?? null
     const condition = body.condition || "good"
+    const vehicle_type = body.vehicle_type || "auto"
     const listing_url = body.listing_url ?? null
     const listing_description = body.listing_description ?? null
 
@@ -77,6 +78,7 @@ Inputs:
 - Year: ${year}
 - Mileage: ${mileage}
 - Condition: ${condition}
+- Vehicle type: ${vehicle_type}
 - Asking price: ${price}
 - State: ${state ?? ""}
 - City: ${city ?? ""}
@@ -132,35 +134,31 @@ Inputs:
 
       estimate = roundTo(estimate, 250)
 
-      const finalOffer = roundTo(estimate * 0.97, 500)
-      const recommendedOffer = Math.round(finalOffer)
-      const recommendedOfferText = recommendedOffer.toLocaleString("en-US")
+      const lowBound = ai_estimate_low as number
+      const highBound = ai_estimate_high as number
+
+      let fairHigh = roundTo(highBound, 500)
+      if (!Number.isFinite(fairHigh) || fairHigh <= 0) fairHigh = roundTo(estimate * 1.1, 500)
+
+      const fairLow = roundTo(lowBound, 500)
 
       const askingInsideFairRange =
-        Number.isFinite(ai_estimate_low as number) &&
-        Number.isFinite(ai_estimate_high as number) &&
-        price >= (ai_estimate_low as number) &&
-        price <= (ai_estimate_high as number)
+        Number.isFinite(fairLow) && Number.isFinite(fairHigh) && price >= fairLow && price <= fairHigh
 
-      const askingSlightlyAboveFairRange =
-        Number.isFinite(ai_estimate_high as number) && price > (ai_estimate_high as number) && price <= (ai_estimate_high as number) * 1.05
+      const askingAboveFairRange = Number.isFinite(fairHigh) && price > fairHigh
 
-      const askingWithinOrSlightlyAboveFairRange = askingInsideFairRange || askingSlightlyAboveFairRange
-
-      let finalWalkAway = roundTo(ai_estimate_high as number, 500)
-      if (!Number.isFinite(finalWalkAway) || finalWalkAway <= 0) finalWalkAway = roundTo(estimate * 1.05, 500)
-
-      if (askingWithinOrSlightlyAboveFairRange) {
-        finalWalkAway = Math.max(finalWalkAway, roundTo(price * 1.05, 500))
-      } else {
-        finalWalkAway = roundTo(ai_estimate_high as number, 500)
+      let finalWalkAway = fairHigh
+      if (!askingAboveFairRange && !askingInsideFairRange) {
+        finalWalkAway = Math.min(fairHigh, roundTo(estimate, 500))
       }
 
-      if (finalWalkAway < finalOffer) finalWalkAway = finalOffer
+      if (finalWalkAway > fairHigh) finalWalkAway = fairHigh
 
-      if (decision === "NEGOTIATE" && finalWalkAway < price) {
-        finalWalkAway = roundTo(price, 500)
-      }
+      let recommendedOffer = roundTo(estimate * 0.97, 500)
+      if (recommendedOffer >= finalWalkAway) recommendedOffer = finalWalkAway - 500
+      if (recommendedOffer < 0) recommendedOffer = 0
+
+      const recommendedOfferText = Math.round(recommendedOffer).toLocaleString("en-US")
 
       const cleanExplanation = explanation
         .replace(/^\s*[-*]\s*/gm, '')
