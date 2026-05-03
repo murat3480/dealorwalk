@@ -35,7 +35,18 @@ function getBasePrice(year: number, segment: Segment, brand?: string | null) {
     segment === 'SUV' ? 1500 :
     1800
 
-  return (segmentBase - age * yearlyDrop) * brandMultiplier
+  let base = (segmentBase - age * yearlyDrop) * brandMultiplier
+
+  if (age > 8) {
+    const extraDrop =
+      segment === 'TRUCK' ? (age - 8) * 600 :
+      segment === 'SUV' ? (age - 8) * 750 :
+      (age - 8) * 900
+
+    base = base - extraDrop
+  }
+
+  return base
 }
 
 function applyMileage(base: number, mileage: number, segment: Segment) {
@@ -44,7 +55,19 @@ function applyMileage(base: number, mileage: number, segment: Segment) {
     segment === 'SUV' ? 0.045 :
     0.06
 
-  return base - (mileage * rate)
+  let price = base - (mileage * rate)
+
+  if (mileage > 100000) {
+    const extraMiles = mileage - 100000
+    const extraRate =
+      segment === 'TRUCK' ? 0.015 :
+      segment === 'SUV' ? 0.02 :
+      0.03
+
+    price = price - (extraMiles * extraRate)
+  }
+
+  return price
 }
 
 function applyCondition(price: number, condition?: string) {
